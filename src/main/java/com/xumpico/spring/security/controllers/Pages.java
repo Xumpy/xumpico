@@ -18,18 +18,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class Pages {
-    @RequestMapping(value = "login")
-    public @ResponseBody String login(){
-        try {
-            ResponseBodyFromJSP loginJSP = new ResponseBodyFromJSP("/jsp/pages/login.jsp"); 
-            return loginJSP.getResponse();
-        } catch (IOException ex) {
-            Logger.getLogger(Pages.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return "Error on loading xumpico login page";
-    }
-    
     @RequestMapping(value = "resources/angular.min.js")
     public @ResponseBody String angularSpinnerMinJS(){
         try {

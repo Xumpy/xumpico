@@ -6,6 +6,7 @@
 package com.xumpico.spring.security;
 
 import java.text.SimpleDateFormat;
+import java.util.Properties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,8 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
+import org.springframework.web.servlet.mvc.ParameterizableViewController;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
@@ -32,7 +35,7 @@ public class DispatcherConfig extends WebMvcConfigurerAdapter{
             InternalResourceViewResolver viewResolver 
                       = new InternalResourceViewResolver();
             viewResolver.setViewClass(JstlView.class);
-            viewResolver.setPrefix("/");
+            viewResolver.setPrefix("/WEB-INF/jsp/");
             viewResolver.setSuffix(".jsp");
             return viewResolver;
     }
@@ -42,6 +45,29 @@ public class DispatcherConfig extends WebMvcConfigurerAdapter{
         registry.addResourceHandler("/resources/**").addResourceLocations("/resources/").setCachePeriod(31556926);
     }
 
+    @Bean
+    public SimpleUrlHandlerMapping urlMapping(){
+        SimpleUrlHandlerMapping urlMapping = new SimpleUrlHandlerMapping();
+        urlMapping.setMappings(urlMappingProperties());
+        
+        return urlMapping;
+    }
+    
+    Properties urlMappingProperties() {
+        return new Properties() {
+            {
+                setProperty("login", "loginController");
+            }
+        };
+    }
+    
+    @Bean(name = "loginController")
+    public ParameterizableViewController indexController(){
+        ParameterizableViewController parameterizableViewController = new ParameterizableViewController();
+        parameterizableViewController.setViewName("login");
+        return parameterizableViewController;
+    }
+    
     @Bean
     public CommonsMultipartResolver multipartResolver(){
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
