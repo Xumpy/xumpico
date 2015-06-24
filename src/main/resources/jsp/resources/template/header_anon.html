@@ -1,0 +1,40 @@
+<%@include file="/resources/template/head.html" %>
+<body>
+    <span us-spinner spinner-key="spinner-1"></span>
+    <div class="navbar navbar-default">
+        <div class="navbar-collapse collapse navbar-responsive-collapse">
+            <ul class="nav navbar-nav">
+              
+            </ul>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+    var app = angular.module('myApp', ['angularTreeview', 'smart-table', 'angularSpinner']);
+
+    app.factory('spinnerInterceptor', ['$timeout', 'usSpinnerService', function($timeout, usSpinnerService) {
+                return  {
+                         request: function(config) {
+                             $timeout(function() {
+                                usSpinnerService.spin('spinner-1');
+                              }, 100);
+                             return config;
+                         },
+                         response:function(config){
+                             $timeout(function() {
+                                usSpinnerService.stop('spinner-1');
+                              }, 200);
+                             return config;
+                         },
+                         responseError:function(config){
+                             $timeout(function() {
+                                usSpinnerService.stop('spinner-1');
+                              }, 200);
+                             return config;
+                         }
+                };
+            }]);
+    app.config(['$httpProvider', function($httpProvider) {
+        $httpProvider.interceptors.push('spinnerInterceptor');
+    }]);
+</script>
