@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletContext;
@@ -59,7 +61,7 @@ public class GeneratePages {
     
     private static void createFolder(String url){
         File file = new File(url);
-        file.mkdir();
+        file.mkdirs();
         
         List<String> sourceLocations = getSourceLocation(url);
 
@@ -84,7 +86,15 @@ public class GeneratePages {
         }
     }
     
-    public static void generate(ServletContext servletContex) throws FileNotFoundException, IOException{
+    public static void createFolderFromFileURL(String url){
+        String folder = url.substring(0, url.lastIndexOf("/"));
+        
+        if (!new File(folder).isDirectory()){
+            createFolder(folder);
+        }
+    }
+    
+    public static void generate(ServletContext servletContex, Class<?> pageBeanClass) throws FileNotFoundException, IOException{
         String url = servletContex.getRealPath("resources");
         
         if( !new File(url).isDirectory()){
@@ -102,6 +112,30 @@ public class GeneratePages {
         if( !new File(url).isFile()){
             log.info("WEB-INF/jsp/login.jsp does not exists! Creating it.");
             createFile(url, new ResponseBodyFromJSP("/jsp/pages/login.jsp").getResponse());
+        }
+        
+        log.debug("---- scanning for new pages in page class: " + pageBeanClass.getName());
+        
+        Field[] fields = pageBeanClass.getFields();
+        
+        for(Field field: fields){
+            Annotation[] annotations = field.getAnnotations();
+            log.debug(" ------ Found field name in page class: " + field.getName());
+            for (Annotation annotation: annotations){
+                log.debug(annotation.annotationType().toString());
+                if (annotation.annotationType().equals(Page.class)){
+                    Page page = (Page) annotation;
+                    
+                    url = servletContex.getRealPath("WEB-INF/jsp/" + page.pageName());
+                    
+                    createFolderFromFileURL(url);
+                    
+                    if( !new File(url).isFile()){
+                        log.info(page.pageName() + " file does not exists! Creating it.");
+                        createFile(url, "Hello Nico");
+                    }
+                }
+            }
         }
     }
 }

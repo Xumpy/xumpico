@@ -25,7 +25,7 @@ public abstract class XumpicoConfig extends AbstractAnnotationConfigDispatcherSe
         super.registerDispatcherServlet(servletContext);
 
         try {
-            GeneratePages.generate(servletContext);
+            GeneratePages.generate(servletContext, getPageBean());
         } catch (IOException ex) {
             Logger.getLogger(XumpicoConfig.class.getName()).log(Level.SEVERE, null, ex);
         }
